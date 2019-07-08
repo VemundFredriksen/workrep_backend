@@ -39,17 +39,7 @@ namespace Workrep.Backend.API
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Sample}/{action=Index}/{id?}");
-            });
-
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync("Hello World!");
-            });
+            app.UseMvc();
         }
     }
 }
