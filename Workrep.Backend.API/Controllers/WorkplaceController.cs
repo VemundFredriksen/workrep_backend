@@ -21,30 +21,36 @@ namespace Workrep.Backend.API.Controllers
         }
 
         /// <summary>
-        /// TODO : Should be removed
+        /// Returns a list of workplaces given by specified search crieteria
         /// </summary>
+        /// <param name="searchCriteria">Specified searchcriteria</param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<ClientWorkplace[]>> GetAllAsync()
+        public async Task<ActionResult<ClientWorkplace[]>> GetAsync([FromQuery] WorkplaceSearchCriteria searchCriteria)
         {
             return DBContext.Workplace.Include(w => w.Review)
                 .Include(w => w.SuperOrganizationNumberNavigation)
                 .Include(w => w.WorkplaceBio)
-                .Select(w => new ClientWorkplace()
+                .Where(w => (searchCriteria.Name == null) ? true : w.Name.StartsWith(searchCriteria.Name) || w.Name.Contains($" {searchCriteria.Name}"))
+                .Where(w => w.Employees >= searchCriteria.MinEmployee)
+                .Where(w => (searchCriteria.MaxEmployee == 0) ? true : w.Employees <= searchCriteria.MaxEmployee)
+                .Where(w => (searchCriteria.City == null) ? true : w.City == searchCriteria.City)
+                .Where(w => (searchCriteria.Country == null) ? true : w.Country == searchCriteria.Country)
+                .Select(workplace => new ClientWorkplace()
                 {
-                    EmployeeCount = w.Employees,
-                    OrganizationNumber = w.OrganizationNumber,
-                    Address = w.Address,
-                    Bio = w.WorkplaceBio == null ? null : w.WorkplaceBio.Bio,
-                    City = w.City,
-                    Country = w.Country,
-                    Homepage = w.Homepage,
-                    Name = w.Name,
-                    Rating = w.Review.Count == 0 ? 0.0F : (float)w.Review.Average(r => (decimal)r.Rating),
-                    ReviewCount = w.Review.Count,
-                    SuperName = w.SuperOrganizationNumberNavigation.Name,
-                    SuperOrganizationNumber = w.SuperOrganizationNumber,
-                    ZIP = w.Zip
+                    EmployeeCount = workplace.Employees,
+                    OrganizationNumber = workplace.OrganizationNumber,
+                    Address = workplace.Address,
+                    Bio = workplace.WorkplaceBio == null ? null : workplace.WorkplaceBio.Bio,
+                    City = workplace.City,
+                    Country = workplace.Country,
+                    Homepage = workplace.Homepage,
+                    Name = workplace.Name,
+                    Rating = workplace.Review.Count == 0 ? 0.0F : (float)workplace.Review.Average(r => (decimal)r.Rating),
+                    ReviewCount = workplace.Review.Count,
+                    SuperName = workplace.SuperOrganizationNumberNavigation.Name,
+                    SuperOrganizationNumber = workplace.SuperOrganizationNumber,
+                    ZIP = workplace.Zip
                 }).ToArray();
         }
 
