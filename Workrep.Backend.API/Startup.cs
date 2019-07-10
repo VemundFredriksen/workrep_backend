@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Workrep.Backend.DatabaseIntegration.Models;
+using System.IdentityModel.Tokens.Jwt;
+using Workrep.Backend.API.Services;
+using Microsoft.Extensions.Options;
 
 namespace Workrep.Backend.API
 {
@@ -32,6 +35,13 @@ namespace Workrep.Backend.API
 
             // Workrep Databasecontext
             services.AddDbContext<WorkrepContext>(options => options.UseSqlServer(Configuration.GetSection("Connectionstrings").GetValue<string>("Workrep")));
+
+            //Authentication Configuration
+            var authService = new AuthenticationService();
+            Configuration.GetSection("Authentication").Bind(authService);
+            services.AddSingleton(authService);
+
+            services.AddAuthentication();
 
             //Defining the Swagger genearator
             services.AddSwaggerGen(c =>
