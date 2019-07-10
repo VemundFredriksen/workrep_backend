@@ -21,13 +21,14 @@ namespace Workrep.Backend.API.Controllers
         }
 
         /// <summary>
-        /// TODO : Should be removed
+        /// Returns a list of organization specified by search criteria
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<ClientOrganization[]>> GetAllAsync()
+        public async Task<ActionResult<ClientOrganization[]>> GetAsync([FromQuery] OrganizationSearchCriteria searchCriteria)
         {
             return DBContext.Organization.Include(o => o.OrganizationBio)
+                .Include(o => o.Workplace).ThenInclude(w => w.Review)
                 .Select(o => new ClientOrganization()
                 {
                     OrganizationNumber = o.OrganizationNumber,
@@ -39,8 +40,19 @@ namespace Workrep.Backend.API.Controllers
                     EmployeeCount = o.Employees,
                     SectorCode = o.SectorCode,
                     Type = o.Type,
-                    ZIP = o.Zip
-                })
+                    ZIP = o.Zip,
+                    Bio = o.OrganizationBio == null ? null : o.OrganizationBio.Bio,
+                    WorkplaceCount = o.Workplace.Count,
+                    ReviewCount = o.Workplace.Sum(w => w.Review.Count),
+                    Rating = (float)o.Workplace.Sum(w => w.Review.Count) == 0 ? 0.0F : (float) o.Workplace.Average(w => w.Review.Average(r => r.Rating))
+
+                }).Where(cw => (searchCriteria.Name == null) ? true : cw.Name.StartsWith(searchCriteria.Name) || cw.Name.Contains($" {searchCriteria.Name}"))
+                .Where(cw => (searchCriteria.City == null) ? true : cw.City == searchCriteria.City)
+                .Where(cw => (searchCriteria.Country == null) ? true : cw.Country == searchCriteria.Country)
+                .Where(cw => cw.EmployeeCount >= searchCriteria.MinEmployees)
+                .Where(cw => (searchCriteria.MaxEmployees == 0) ? true : cw.EmployeeCount <= searchCriteria.MaxEmployees)
+                .Where(cw => (searchCriteria.MinWorkplaces == 0) ? true : cw.WorkplaceCount >= searchCriteria.MinWorkplaces )
+                .Where(cw => (searchCriteria.MinReviewCount == 0) ? true : cw.ReviewCount >= searchCriteria.MinReviewCount)
                 .ToArray();
         }
 
@@ -70,7 +82,7 @@ namespace Workrep.Backend.API.Controllers
                     Bio = o.OrganizationBio == null ? null : o.OrganizationBio.Bio,
                     WorkplaceCount = o.Workplace.Count,
                     ReviewCount = o.Workplace.Sum(w => w.Review.Count),
-                    Rating = (float)o.Workplace.Sum(w => w.Review.Count) == 0 ? 0.0F : ((float)o.Workplace.Sum(w => w.Review.Sum(r => r.Rating))) / ((float)o.Workplace.Sum(w => w.Review.Count))
+                    Rating = (float)o.Workplace.Sum(w => w.Review.Count) == 0 ? 0.0F : (float)o.Workplace.Average(w => w.Review.Average(r => r.Rating))
                 }).SingleOrDefault(org => org.OrganizationNumber == organizationNumber);
 
             if (organization == null)
