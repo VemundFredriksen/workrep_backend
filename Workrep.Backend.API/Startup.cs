@@ -75,8 +75,9 @@ namespace Workrep.Backend.API
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Workrep API V1");
             });
 
-            app.UseMvc();
             app.UseAuthentication();
+            app.UseMvc();
+            
         }
     }
 }

@@ -24,7 +24,27 @@ namespace Workrep.Backend.API.Models
 
             public void OnActionExecuted(ActionExecutedContext context)
             {
-                context.Result = new UnauthorizedResult();
+                var authService = (AuthenticationService) context.HttpContext.RequestServices.GetService(typeof(AuthenticationService));
+
+                string requestToken = context.HttpContext.Request.Headers["Authorization"];
+                if(requestToken == null)
+                {
+                    context.Result = new UnauthorizedResult();
+                    return;
+                }
+
+                requestToken = requestToken.Split(" ")[1];
+
+                int userId;
+                var authStatus = authService.ValidateToken(requestToken, out userId);
+                if (!authStatus)
+                {
+                    context.Result = new UnauthorizedResult();
+                    return;
+                }
+
+                return;
+                
             }
 
             public void OnActionExecuting(ActionExecutingContext context)

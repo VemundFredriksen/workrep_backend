@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Workrep.Backend.DatabaseIntegration.Models;
 
@@ -47,11 +48,35 @@ namespace Workrep.Backend.API.Services
             return token;
         }
 
-        public bool ValidateToken(string token)
-        {
-            SecurityToken identiy;
+        //public bool ValidateToken(string token)
+        //{
+        //    SecurityToken identiy;
 
-            var simplePrinciple = TokenHandler.ValidateToken(token, null, out identiy);
+        //    var simplePrinciple = TokenHandler.ValidateToken(token, new TokenValidationParameters(), out identiy);
+        //    var identity = simplePrinciple.Identity as ClaimsIdentity;
+
+        //    if (identity == null)
+        //        return false;
+
+        //    if (!identity.IsAuthenticated)
+        //        return false;
+
+        //    var usernameClaim = identity.FindFirst("user_id");
+        //    var username = usernameClaim?.Value;
+
+        //    if (string.IsNullOrEmpty(username))
+        //        return false;
+
+        //    // More validate to check whether username exists in system
+
+        //    return true;
+        //}
+
+        public bool ValidateToken(string token, out int userId)
+        {
+            userId = -1;
+
+            var simplePrinciple = this.GetPrincipal(token);
             var identity = simplePrinciple.Identity as ClaimsIdentity;
 
             if (identity == null)
@@ -60,15 +85,72 @@ namespace Workrep.Backend.API.Services
             if (!identity.IsAuthenticated)
                 return false;
 
-            var usernameClaim = identity.FindFirst("user_id");
-            var username = usernameClaim?.Value;
+            var userIdClaim = identity.FindFirst("user_id");
+            if (userIdClaim == null)
+                return false;
 
-            if (string.IsNullOrEmpty(username))
+            userId = Int32.Parse(userIdClaim.Value);
+
+            if (userId == -1)
                 return false;
 
             // More validate to check whether username exists in system
 
             return true;
+        }
+
+        protected Task<IPrincipal> AuthenticateJwtToken(string token)
+        {
+            int userId;
+
+            if (ValidateToken(token, out userId))
+            {
+                // based on username to get more information from database 
+                // in order to build local identity
+                var claims = new List<Claim>
+        {
+            new Claim("userid", userId.ToString())
+            // Add more claims if needed: Roles, ...
+        };
+
+                var identity = new ClaimsIdentity(claims, "Jwt");
+                IPrincipal user = new ClaimsPrincipal(identity);
+
+                return Task.FromResult(user);
+            }
+
+            return Task.FromResult<IPrincipal>(null);
+        }
+
+        public ClaimsPrincipal GetPrincipal(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+                if (jwtToken == null)
+                    return null;
+
+                var symmetricKey = Convert.FromBase64String(this.Secret);
+
+                var validationParameters = new TokenValidationParameters()
+                {
+                    RequireExpirationTime = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(symmetricKey)
+                };
+
+                SecurityToken securityToken;
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out securityToken);
+
+                return principal;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
     }
