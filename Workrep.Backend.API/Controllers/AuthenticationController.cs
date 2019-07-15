@@ -23,6 +23,7 @@ namespace Workrep.Backend.API.Controllers
         {
             this.DBContext = dbContext;
             this.AuthService = authService;
+
         }
 
         [HttpGet]

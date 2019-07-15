@@ -14,6 +14,8 @@ using Workrep.Backend.DatabaseIntegration.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Workrep.Backend.API.Services;
 using Microsoft.Extensions.Options;
+using Workrep.Backend.API.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Workrep.Backend.API
 {
@@ -31,7 +33,7 @@ namespace Workrep.Backend.API
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            
 
             // Workrep Databasecontext
             services.AddDbContext<WorkrepContext>(options => options.UseSqlServer(Configuration.GetSection("Connectionstrings").GetValue<string>("Workrep")));
@@ -41,7 +43,7 @@ namespace Workrep.Backend.API
             Configuration.GetSection("Authentication").Bind(authService);
             services.AddSingleton(authService);
 
-            services.AddAuthentication();
+            services.AddMvc();
 
             //Defining the Swagger genearator
             services.AddSwaggerGen(c =>
@@ -74,6 +76,7 @@ namespace Workrep.Backend.API
             });
 
             app.UseMvc();
+            app.UseAuthentication();
         }
     }
 }
