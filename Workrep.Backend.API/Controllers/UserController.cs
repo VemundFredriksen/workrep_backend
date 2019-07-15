@@ -26,9 +26,10 @@ namespace Workrep.Backend.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<string>> Get()
+        public async Task<ActionResult<User>> Get()
         {
-            return "asd";
+            var x = (int) HttpContext.Items["userId"];
+            return DBContext.User.SingleOrDefault(u => u.UserId == x);
         }
     }
 }

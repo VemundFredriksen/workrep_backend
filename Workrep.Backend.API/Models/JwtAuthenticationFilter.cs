@@ -24,10 +24,16 @@ namespace Workrep.Backend.API.Models
 
             public void OnActionExecuted(ActionExecutedContext context)
             {
-                var authService = (AuthenticationService) context.HttpContext.RequestServices.GetService(typeof(AuthenticationService));
+                
+                
+            }
+
+            public void OnActionExecuting(ActionExecutingContext context)
+            {
+                var authService = (AuthenticationService)context.HttpContext.RequestServices.GetService(typeof(AuthenticationService));
 
                 string requestToken = context.HttpContext.Request.Headers["Authorization"];
-                if(requestToken == null)
+                if (requestToken == null)
                 {
                     context.Result = new UnauthorizedResult();
                     return;
@@ -43,13 +49,10 @@ namespace Workrep.Backend.API.Models
                     return;
                 }
 
+                context.HttpContext.Items["userId"] = userId;
+
+
                 return;
-                
-            }
-
-            public void OnActionExecuting(ActionExecutingContext context)
-            {
-
             }
         }
     }

@@ -48,30 +48,6 @@ namespace Workrep.Backend.API.Services
             return token;
         }
 
-        //public bool ValidateToken(string token)
-        //{
-        //    SecurityToken identiy;
-
-        //    var simplePrinciple = TokenHandler.ValidateToken(token, new TokenValidationParameters(), out identiy);
-        //    var identity = simplePrinciple.Identity as ClaimsIdentity;
-
-        //    if (identity == null)
-        //        return false;
-
-        //    if (!identity.IsAuthenticated)
-        //        return false;
-
-        //    var usernameClaim = identity.FindFirst("user_id");
-        //    var username = usernameClaim?.Value;
-
-        //    if (string.IsNullOrEmpty(username))
-        //        return false;
-
-        //    // More validate to check whether username exists in system
-
-        //    return true;
-        //}
-
         public bool ValidateToken(string token, out int userId)
         {
             userId = -1;
