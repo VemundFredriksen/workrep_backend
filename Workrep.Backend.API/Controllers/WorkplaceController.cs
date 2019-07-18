@@ -10,7 +10,7 @@ using Workrep.Backend.DatabaseIntegration.Models;
 namespace Workrep.Backend.API.Controllers
 {
     [Route("api/[controller]")]
-    public class WorkplaceController : Controller
+    public class WorkplaceController : Controller, WorkrepAPIController
     {
 
         public WorkrepContext DBContext { get; set; }

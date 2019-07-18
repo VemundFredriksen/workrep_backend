@@ -13,7 +13,7 @@ using Workrep.Backend.API.Services;
 namespace Workrep.Backend.API.Controllers
 {
     [Route("auth")]
-    public class AuthenticationController : Controller
+    public class AuthenticationController : Controller, WorkrepAPIController
     {
        
         private WorkrepContext DBContext { get; set; }

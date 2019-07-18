@@ -24,8 +24,7 @@ namespace Workrep.Backend.API.Models
 
             public void OnActionExecuted(ActionExecutedContext context)
             {
-                
-                
+                  
             }
 
             public void OnActionExecuting(ActionExecutingContext context)
@@ -39,6 +38,7 @@ namespace Workrep.Backend.API.Models
                     return;
                 }
 
+                //TODO This seems weird
                 requestToken = requestToken.Split(" ")[1];
 
                 int userId;

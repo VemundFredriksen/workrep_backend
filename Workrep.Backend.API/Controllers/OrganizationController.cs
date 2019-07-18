@@ -10,7 +10,7 @@ using Workrep.Backend.DatabaseIntegration.Models;
 namespace Workrep.Backend.API.Controllers
 {
     [Route("api/[controller]")]
-    public class OrganizationController : Controller
+    public class OrganizationController : Controller, WorkrepAPIController
     {
 
         private WorkrepContext DBContext { get; set; }
@@ -86,7 +86,7 @@ namespace Workrep.Backend.API.Controllers
                 }).SingleOrDefault(org => org.OrganizationNumber == organizationNumber);
 
             if (organization == null)
-                return NotFound($"Organization {organizationNumber} not found!");
+                return this.OrganizationNotFound(organizationNumber);
 
             return organization;
         }
