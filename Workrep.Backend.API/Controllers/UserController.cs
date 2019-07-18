@@ -13,7 +13,7 @@ namespace Workrep.Backend.API.Controllers
 {
     [JwtAuthentication]
     [Route("api/[controller]")]
-    public class UserController : Controller, WorkrepAPIControllers
+    public class UserController : Controller, WorkrepAPIController
     {
 
         private WorkrepContext DBContext { get; set; }
