@@ -47,7 +47,7 @@ namespace Workrep.Backend.API.Services
 
             return token;
         }
-
+        //TODO handle when token is missing or invalid
         public bool ValidateToken(string token, out int userId)
         {
             userId = -1;

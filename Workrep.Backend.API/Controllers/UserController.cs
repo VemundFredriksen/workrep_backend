@@ -16,7 +16,7 @@ namespace Workrep.Backend.API.Controllers
     public class UserController : Controller, WorkrepAPIController
     {
 
-        private WorkrepContext DBContext { get; set; }
+        public WorkrepContext DBContext { get; private set; }
         private AuthenticationService AuthService { get; set; } = null;
 
         public UserController(WorkrepContext dbContext, AuthenticationService authService)

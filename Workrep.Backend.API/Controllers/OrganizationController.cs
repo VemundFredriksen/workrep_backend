@@ -13,7 +13,7 @@ namespace Workrep.Backend.API.Controllers
     public class OrganizationController : Controller, WorkrepAPIController
     {
 
-        private WorkrepContext DBContext { get; set; }
+        public WorkrepContext DBContext { get; private set; }
 
         public OrganizationController(WorkrepContext dbContext)
         {
