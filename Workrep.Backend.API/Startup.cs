@@ -46,7 +46,7 @@ namespace Workrep.Backend.API
             services.AddSingleton(authService);
 
             //Register MVC with Fluentvalidation
-            services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Validators.UserRegistrationValidator>()); ;
+            services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Validators.UserRegistrationValidator>());
 
             //Defining the Swagger genearator
             services.AddSwaggerGen(c =>
