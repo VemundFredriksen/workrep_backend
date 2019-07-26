@@ -26,6 +26,11 @@ namespace Workrep.Backend.API.Controllers
 
         }
 
+        /// <summary>
+        /// Returns an acces token for the authenticated user
+        /// </summary>
+        /// <param name="loginCredentials">The users login credentials</param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<string>> GetToken([FromBody] UserLoginCredentials loginCredentials)
         {
