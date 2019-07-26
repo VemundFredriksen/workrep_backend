@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Workrep.Backend.API.Models;
 using Workrep.Backend.DatabaseIntegration.Models;
 
 namespace Workrep.Backend.API.Controllers
@@ -14,6 +15,26 @@ namespace Workrep.Backend.API.Controllers
         {
             int userId = (int) controller.HttpContext.Items["userId"];
             return controller.DBContext.User.FirstOrDefault(user => user.UserId == userId); 
+        }
+
+        public static ModelValidity ValidateModel(this Controller controller)
+        {
+            if (controller.ModelState.IsValid)
+            {
+                return new ModelValidity()
+                {
+                    IsValid = true,
+                    ActionResult = new OkObjectResult("")
+                };
+            }
+
+            return new ModelValidity()
+            {
+                IsValid = false,
+                ActionResult = new BadRequestObjectResult(new { ErrorMessages = controller.ModelState.Values.SelectMany(e => e.Errors.Select(err => err.ErrorMessage)) })
+            };
+
+
         }
 
         public static NotFoundObjectResult OrganizationNotFound(this WorkrepAPIController controller, long organizationNumber)
