@@ -23,17 +23,27 @@ namespace Workrep.Backend.API.Models
 
         public ClientReview(Review review, Workplace workplace)
         {
+            ConstructClientReview(review);
+            WorkplaceName = workplace.Name;
+        }
+
+        public ClientReview(Review review, string workplaceName)
+        {
+            ConstructClientReview(review);
+            WorkplaceName = workplaceName;
+        }
+
+        private void ConstructClientReview(Review review)
+        {
             ReviewId = review.ReviewId;
-            UserId = (int) review.UserId;
+            UserId = (int)review.UserId;
             WorkplaceOrganizationNumber = review.WorkplaceOrganizationNumber;
-            Timestamp = (DateTime) review.Timestamp;
+            Timestamp = (DateTime)review.Timestamp;
             Position = review.Position;
             EmploymentStart = review.EmploymentStart;
             EmploymentEnd = review.EmploymentEnd;
             Comment = review.Comment;
             Rating = review.Rating;
-
-            WorkplaceName = workplace.Name;
         }
 
     }

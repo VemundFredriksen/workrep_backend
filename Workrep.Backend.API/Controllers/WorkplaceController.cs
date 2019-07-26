@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Workrep.Backend.API.Models;
+using Workrep.Backend.API.Models.HttpModels;
 using Workrep.Backend.DatabaseIntegration.Models;
 
 namespace Workrep.Backend.API.Controllers
@@ -111,6 +112,40 @@ namespace Workrep.Backend.API.Controllers
             }
 
             return workplaceReviews.ToArray();
+        }
+
+        /// <summary>
+        /// Submits a new review to specified workplace
+        /// </summary>
+        /// <param name="organizationNumber">Organization number of workplace</param>
+        /// <param name="body">The review to be submitted</param>
+        /// <returns>Review</returns>
+        [JwtAuthentication]
+        [HttpPost("{organizationNumber}/reviews")]
+        public async Task<ActionResult<ClientReview>> PostReview(long organizationNumber, [FromBody] ReviewSubmitBody body)
+        {
+            var validity = this.ValidateModel();
+            if (!validity.IsValid)
+                return validity.ActionResult;
+
+            var review = new Review()
+            {
+                UserId = this.GetUser().UserId,
+                WorkplaceOrganizationNumber = organizationNumber,
+                Rating = body.Rating,
+                Comment = body.Comment,
+                EmploymentStart = body.EmploymentStart,
+                EmploymentEnd = body.EmploymentEnd,
+                Position = body.Position,
+                Timestamp = DateTime.UtcNow
+            };
+
+            DBContext.Review.Add(review);
+            DBContext.SaveChanges();
+
+            var workplaceName = DBContext.Workplace.Single(w => w.OrganizationNumber == organizationNumber).Name;
+            return new ClientReview(review, workplaceName);
+
         }
 
     }
