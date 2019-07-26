@@ -26,8 +26,8 @@ namespace Workrep.Backend.API.Controllers
 
         }
 
-        [HttpGet]
-        public async Task<ActionResult<string>> GetToken([FromQuery] UserLoginCredentials loginCredentials)
+        [HttpPost]
+        public async Task<ActionResult<string>> GetToken([FromBody] UserLoginCredentials loginCredentials)
         {
             var user = DBContext.User.SingleOrDefault(u => u.Email == loginCredentials.Email && u.Password == loginCredentials.Password);
             if (user == null)
