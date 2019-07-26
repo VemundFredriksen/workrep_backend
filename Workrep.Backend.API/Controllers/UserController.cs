@@ -25,11 +25,47 @@ namespace Workrep.Backend.API.Controllers
             this.AuthService = authService;
         }
 
+        /// <summary>
+        /// Returns userinfo for authenticated user
+        /// </summary>
+        /// <returns>Userinfo</returns>
         [HttpGet]
-        public async Task<ActionResult<User>> Get()
+        public async Task<ActionResult<ClientUser>> GetAsync()
         {
-            var x = (int) HttpContext.Items["userId"];
-            return DBContext.User.SingleOrDefault(u => u.UserId == x);
+            var user = this.GetUser();
+            if (user == null)
+                return Unauthorized();
+
+            return new ClientUser(user);
+        }
+
+        /// <summary>
+        /// Returns all reviews written by authenticated user
+        /// </summary>
+        /// <returns>List of reviews</returns>
+        [HttpGet("Reviews")]
+        public async Task<ActionResult<ClientReview[]>> GetReviewsAsync()
+        {
+            var user = this.GetUser();
+            if (user == null)
+                return Unauthorized();
+
+            var query = (from reviews in DBContext.Review
+                         join workplaces in DBContext.Workplace on reviews.WorkplaceOrganizationNumber equals workplaces.OrganizationNumber
+                         where reviews.UserId == user.UserId
+                         select new { Review = reviews, Workplace = workplaces });
+
+            if (query == null)
+                return new ClientReview[0];
+
+            var userReviews = new List<ClientReview>();
+            foreach(var row in query)
+            {
+                userReviews.Add(new ClientReview(row.Review, row.Workplace));
+            }
+
+            return userReviews.ToArray();
+
         }
     }
 }
