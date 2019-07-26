@@ -94,9 +94,23 @@ namespace Workrep.Backend.API.Controllers
         /// <param name="organizationNumber">Organization number</param>
         /// <returns>List of Reviews</returns>
         [HttpGet("{organizationNumber}/reviews")]
-        public async Task<ActionResult<Review[]>> GetReviewsAsync(long organizationNumber)
+        public async Task<ActionResult<ClientReview[]>> GetReviewsAsync(long organizationNumber)
         {
-            return DBContext.Review.Where(r => r.WorkplaceOrganizationNumber == organizationNumber).ToArray();
+            var query = (from reviews in DBContext.Review
+                         join workplaces in DBContext.Workplace on reviews.WorkplaceOrganizationNumber equals workplaces.OrganizationNumber
+                         where reviews.WorkplaceOrganizationNumber == organizationNumber
+                         select new { Review = reviews, Workplace = workplaces });
+
+            if (query == null)
+                return new ClientReview[0];
+
+            var workplaceReviews = new List<ClientReview>();
+            foreach (var row in query)
+            {
+                workplaceReviews.Add(new ClientReview(row.Review, row.Workplace));
+            }
+
+            return workplaceReviews.ToArray();
         }
 
     }
