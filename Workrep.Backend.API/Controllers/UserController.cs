@@ -68,6 +68,11 @@ namespace Workrep.Backend.API.Controllers
             return userReviews.ToArray();
         }
 
+        /// <summary>
+        /// Register new user
+        /// </summary>
+        /// <param name="body">Parameters for new user account</param>
+        /// <returns>User</returns>
         [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<ClientUser>> RegisterAsync([FromBody] UserRegistrationBody body)
@@ -76,7 +81,26 @@ namespace Workrep.Backend.API.Controllers
             if (!validity.IsValid)
                 return validity.ActionResult;
 
-            return null;
+            if (DBContext.User.Any(u => u.Email == body.Email))
+                return this.EmailIsTaken(body.Email);
+
+            var user = new User()
+            {
+                Email = body.Email,
+                Password = body.Password,
+                Name = body.Name,
+                Birthdate = body.Birthdate,
+                //TODO Actually use valid data for gender
+                Gender = false,
+                Confirmed = false,
+                RegisterDate = DateTime.UtcNow
+            };
+
+            DBContext.User.Add(user);
+            DBContext.SaveChanges();
+
+            return new ClientUser(user);
+
         }
 
     }

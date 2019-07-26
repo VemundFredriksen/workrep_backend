@@ -47,5 +47,10 @@ namespace Workrep.Backend.API.Controllers
             return new NotFoundObjectResult($"Workplace {organizationNumber} not found.");
         }
 
+        public static BadRequestObjectResult EmailIsTaken(this UserController controller, string email)
+        {
+            return new BadRequestObjectResult($"There is already an user with email {email} registered!");
+        }
+
     }
 }
