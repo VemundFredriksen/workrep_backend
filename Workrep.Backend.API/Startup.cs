@@ -16,6 +16,8 @@ using Workrep.Backend.API.Services;
 using Microsoft.Extensions.Options;
 using Workrep.Backend.API.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using FluentValidation.AspNetCore;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Workrep.Backend.API
 {
@@ -43,7 +45,8 @@ namespace Workrep.Backend.API
             Configuration.GetSection("Authentication").Bind(authService);
             services.AddSingleton(authService);
 
-            services.AddMvc();
+            //Register MVC with Fluentvalidation
+            services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Validators.UserRegistrationValidator>()); ;
 
             //Defining the Swagger genearator
             services.AddSwaggerGen(c =>
@@ -54,6 +57,7 @@ namespace Workrep.Backend.API
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+                c.AddFluentValidationRules();
             });
         }
 
