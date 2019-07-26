@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Workrep.Backend.API.Models;
+using Workrep.Backend.API.Models.HttpModels;
 using Workrep.Backend.API.Services;
 using Workrep.Backend.DatabaseIntegration.Models;
 
@@ -65,7 +66,18 @@ namespace Workrep.Backend.API.Controllers
             }
 
             return userReviews.ToArray();
-
         }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<ActionResult<ClientUser>> RegisterAsync([FromBody] UserRegistrationBody body)
+        {
+            var validity = this.ValidateModel();
+            if (!validity.IsValid)
+                return validity.ActionResult;
+
+            return null;
+        }
+
     }
 }
