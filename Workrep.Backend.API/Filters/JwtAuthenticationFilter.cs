@@ -8,6 +8,8 @@ using System.Net.Http;
 using System.Web.Http.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace Workrep.Backend.API.Models
 {
@@ -29,6 +31,12 @@ namespace Workrep.Backend.API.Models
 
             public void OnActionExecuting(ActionExecutingContext context)
             {
+                if(context.Filters.Any(filter => filter is AllowAnonymousFilter))
+                {
+                    return;
+                }
+                
+
                 var authService = (AuthenticationService)context.HttpContext.RequestServices.GetService(typeof(AuthenticationService));
 
                 string requestToken = context.HttpContext.Request.Headers["Authorization"];
