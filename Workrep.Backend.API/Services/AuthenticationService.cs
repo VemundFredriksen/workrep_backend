@@ -53,6 +53,9 @@ namespace Workrep.Backend.API.Services
             userId = -1;
 
             var simplePrinciple = this.GetPrincipal(token);
+            if (simplePrinciple == null)
+                return false;
+
             var identity = simplePrinciple.Identity as ClaimsIdentity;
 
             if (identity == null)
