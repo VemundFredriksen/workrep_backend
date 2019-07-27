@@ -18,13 +18,13 @@ namespace Workrep.Backend.API.Controllers
     {
 
         public WorkrepContext DBContext { get; private set; }
-        public EmailSaltService EmailSalt { get; private set; }
+        public EmailService EmailService { get; private set; }
         private AuthenticationService AuthService { get; set; } = null;
 
-        public UserController(WorkrepContext dbContext, AuthenticationService authService, EmailSaltService emailSaltService)
+        public UserController(WorkrepContext dbContext, AuthenticationService authService, EmailService emailSaltService)
         {
             this.DBContext = dbContext;
-            this.EmailSalt = emailSaltService;
+            this.EmailService = emailSaltService;
             this.AuthService = authService;
         }
 

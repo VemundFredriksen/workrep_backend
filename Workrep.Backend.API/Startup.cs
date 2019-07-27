@@ -58,12 +58,15 @@ namespace Workrep.Backend.API
                 c.AddFluentValidationRules();
             });
 
-            //Email salt
-            services.AddScoped<EmailSaltService>(provider =>
+            //Email Service
+            services.AddScoped<EmailService>(provider =>
             {
-                var emailSaltService = new EmailSaltService();
-                Configuration.GetSection("EmailSalt").Bind(emailSaltService);
-                return emailSaltService;
+                var sendgridAPIToken = Configuration.GetSection("EmailService").GetValue<string>("SendGridAPIToken");
+                var sendGridClient = new SendGrid.SendGridClient(sendgridAPIToken);
+                var emailService = new EmailService(sendGridClient);
+                emailService.Salt = Configuration.GetSection("EmailService").GetValue<string>("ConfirmationSalt");
+
+                return emailService;
             });
         }
 

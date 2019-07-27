@@ -41,7 +41,7 @@ namespace Workrep.Backend.API.Controllers
         {
             System.Security.Cryptography.SHA256 shaGenerator = System.Security.Cryptography.SHA256.Create();
 
-            string salt = controller.EmailSalt.Salt;
+            string salt = controller.EmailService.Salt;
             string origin = DateTime.UtcNow.ToString() + user.Email + salt;
             byte[] byteKey = shaGenerator.ComputeHash(System.Text.Encoding.UTF8.GetBytes(origin));
             System.Text.StringBuilder key = new System.Text.StringBuilder();
