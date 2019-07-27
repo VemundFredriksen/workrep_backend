@@ -34,7 +34,7 @@ namespace Workrep.Backend.API.Validators
                 .Matches("^\\$2a\\$10\\$.{53}$").WithMessage("Password is not correctly encrypted!");
 
             //Gender Rules
-            RuleFor(u => u.Gender).Must(g => (new string[] {"male", "female", "other", "unspecified"}).Contains(g.ToLower()));
+            RuleFor(u => u.Gender).Cascade(CascadeMode.StopOnFirstFailure).NotNull().Must(g => (new string[] {"male", "female", "other", "unspecified"}).Contains(g.ToLower()));
 
         }
 
