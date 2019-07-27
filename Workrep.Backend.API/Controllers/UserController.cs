@@ -141,5 +141,34 @@ namespace Workrep.Backend.API.Controllers
 
         }
 
+        [HttpPut("email/confirmation")]
+        public async Task<ActionResult> ResendEmailConfirmationAsync()
+        {
+            var user = this.GetUser();
+            if (user == null)
+                return Unauthorized();
+
+            if ((bool)user.Confirmed)
+                return BadRequest("Email is already confirmed!");
+
+            var ticket = this.GenerateEmailConfirmationTicket(user);
+
+            var existingTicket = DBContext.EmailConfirmation.FirstOrDefault(c => c.UserId == user.UserId);
+            if (existingTicket != null)
+                DBContext.EmailConfirmation.Remove(existingTicket);
+
+            var ticketEntity = new EmailConfirmation()
+            {
+                GenKey = ticket,
+                UserId = user.UserId
+            };
+
+            DBContext.EmailConfirmation.Add(ticketEntity);
+            EmailService.SendEmailConfirmationMail(user, ticket);
+            DBContext.SaveChanges();
+            return Ok();
+
+        }
+
     }
 }
