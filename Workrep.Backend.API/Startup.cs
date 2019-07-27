@@ -34,9 +34,7 @@ namespace Workrep.Backend.API
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
-        {
-            
-
+        {   
             // Workrep Databasecontext
             services.AddDbContext<WorkrepContext>(options => options.UseSqlServer(Configuration.GetSection("Connectionstrings").GetValue<string>("Workrep")));
 
@@ -58,6 +56,14 @@ namespace Workrep.Backend.API
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
                 c.AddFluentValidationRules();
+            });
+
+            //Email salt
+            services.AddScoped<EmailSaltService>(provider =>
+            {
+                var emailSaltService = new EmailSaltService();
+                Configuration.GetSection("EmailSalt").Bind(emailSaltService);
+                return emailSaltService;
             });
         }
 

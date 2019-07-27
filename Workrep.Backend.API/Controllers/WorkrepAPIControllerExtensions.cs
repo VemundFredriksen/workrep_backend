@@ -37,6 +37,22 @@ namespace Workrep.Backend.API.Controllers
 
         }
 
+        public static string GenerateEmailConfirmationTicket(this UserController controller, User user)
+        {
+            System.Security.Cryptography.SHA256 shaGenerator = System.Security.Cryptography.SHA256.Create();
+
+            string salt = controller.EmailSalt.Salt;
+            string origin = DateTime.UtcNow.ToString() + user.Email + salt;
+            byte[] byteKey = shaGenerator.ComputeHash(System.Text.Encoding.UTF8.GetBytes(origin));
+            System.Text.StringBuilder key = new System.Text.StringBuilder();
+            foreach (byte b in byteKey)
+            {
+                key.Append(b.ToString("x2"));
+            }
+
+            return key.ToString();
+        }
+
         public static NotFoundObjectResult OrganizationNotFound(this WorkrepAPIController controller, long organizationNumber)
         {
             return new NotFoundObjectResult($"Organization {organizationNumber} not found.");

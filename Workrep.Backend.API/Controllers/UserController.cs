@@ -18,11 +18,13 @@ namespace Workrep.Backend.API.Controllers
     {
 
         public WorkrepContext DBContext { get; private set; }
+        public EmailSaltService EmailSalt { get; private set; }
         private AuthenticationService AuthService { get; set; } = null;
 
-        public UserController(WorkrepContext dbContext, AuthenticationService authService)
+        public UserController(WorkrepContext dbContext, AuthenticationService authService, EmailSaltService emailSaltService)
         {
             this.DBContext = dbContext;
+            this.EmailSalt = emailSaltService;
             this.AuthService = authService;
         }
 
@@ -97,9 +99,45 @@ namespace Workrep.Backend.API.Controllers
             };
 
             DBContext.User.Add(user);
+
+            //Create new email confirmation ticket
+            var ticket = this.GenerateEmailConfirmationTicket(user);
+            var ticketEntity = new EmailConfirmation()
+            {
+                GenKey = ticket,
+                UserId = user.UserId
+            };
+
+            DBContext.EmailConfirmation.Add(ticketEntity);
+
+            //TODO asycn send mail
+
             DBContext.SaveChanges();
 
             return new ClientUser(user);
+        }
+
+        /// <summary>
+        /// Confirms the users email address
+        /// </summary>
+        /// <param name="ticket">The generated ticket that proves the users email</param>
+        /// <returns>Success Page</returns>
+        [AllowAnonymous]
+        [HttpGet("email/confirmation/{ticket}")]
+        public async Task<ActionResult> ConfirmEmailAsync(string ticket)
+        {
+            var confirmation = DBContext.EmailConfirmation.FirstOrDefault(e => e.GenKey == ticket);
+
+            //TODO Redirect to homepage for requesting new key
+            if (confirmation == null)
+                return BadRequest();
+
+            DBContext.User.First(u => u.UserId == confirmation.UserId).Confirmed = true;
+            DBContext.EmailConfirmation.Remove(confirmation);
+            DBContext.SaveChanges();
+
+            //TODO return to a nice view
+            return Ok();
 
         }
 
