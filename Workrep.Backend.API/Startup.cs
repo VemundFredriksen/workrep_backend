@@ -85,7 +85,13 @@ namespace Workrep.Backend.API
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
+#if DEBUG       //Endpoint while Debug
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Workrep API V1");
+
+#else           //Endpoint in production     
+                c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Workrep API V1");
+
+#endif
             });
 
             app.UseAuthentication();
